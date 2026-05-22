@@ -116,7 +116,7 @@ const Components = {
       { id:'closet', icon:'checkroom', label:'Armario' },
       { id:'upload', icon:'add', label:'', isAdd:true },
       { id:'saved', icon:'favorite', label:'Guardados' },
-      { id:'profile', icon:'person', label:'Perfil' },
+      { id:'builder', icon:'styler', label:'Probador' },
     ];
     return `
     <nav class="mobile-nav" id="mobile-nav">
@@ -135,8 +135,8 @@ const Components = {
   renderClothingCard(item) {
     return `
     <div class="clothing-card" data-id="${item.id}" onclick="App.viewItem('${item.id}')">
-      <div style="width:100%;aspect-ratio:3/4;background:${item.color};display:flex;align-items:center;justify-content:center;font-size:3rem;transition:transform 0.4s var(--ease-out-expo);" class="clothing-card-img">
-        ${item.icon}
+      <div style="width:100%;aspect-ratio:3/4;background:${item.color};display:flex;align-items:center;justify-content:center;font-size:3rem;transition:transform 0.4s var(--ease-out-expo);overflow:hidden;" class="clothing-card-img">
+        ${item.imageUrl ? `<img src="${item.imageUrl}" style="width:100%;height:100%;object-fit:cover;">` : item.icon}
       </div>
       <div class="clothing-card-actions">
         <button class="btn btn-icon btn-sm" style="background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);border-radius:var(--radius-full);width:32px;height:32px;color:${item.favorite ? 'var(--color-accent-rose)' : 'white'}" onclick="event.stopPropagation();App.toggleFavorite('${item.id}')">
