@@ -541,17 +541,18 @@ const App = {
     this._selectedBuildItem = id;
     document.querySelectorAll('.builder-item').forEach(el => el.classList.toggle('selected', el.dataset.id === id));
     
-    // Auto-assign to correct slot based on category
+    // Auto-assign to correct physical slot on mannequin based on category
     const item = Store.getState().clothingItems.find(i => i.id === id);
     if (item) {
       const searchStr = ((item.category || '') + ' ' + (item.name || '')).toLowerCase();
       let targetSlot = null;
       
-      const isTop = ['parte alta', 'camisas', 'blusa', 'camisetas', 'playera', 'sudadera', 'chaqueta', 'vestido', 'top', 'outerwear'].some(v => searchStr.includes(v));
-      const isBottom = ['parte baja', 'pantalon', 'pantalón', 'pantalones', 'falda', 'short', 'jeans', 'bottoms'].some(v => searchStr.includes(v));
+      const isTop = ['camisas', 'blusa', 'camisetas', 'playera', 'sudadera', 'vestido', 'enterizo', 'dress', 'abrigo', 'chaqueta', 'chamarra', 'top', 'outerwear'].some(v => searchStr.includes(v));
+      const isBottom = ['pantalon', 'pantalón', 'pantalones', 'falda', 'short', 'jeans', 'bottoms'].some(v => searchStr.includes(v));
       const isShoes = ['zapatos', 'zapato', 'tenis', 'sneakers', 'shoes'].some(v => searchStr.includes(v));
-      const isAcc = ['cabeza', 'accesorio', 'reloj', 'lentes', 'accessories', 'sombrero', 'gorra'].some(v => searchStr.includes(v));
+      const isAcc = ['accesorio', 'reloj', 'lentes', 'accessories', 'sombrero', 'gorra', 'gorro'].some(v => searchStr.includes(v));
 
+      // Map to the 4 physical zones (top, bottom, shoes, acc)
       if (isTop) targetSlot = 'top';
       else if (isBottom) targetSlot = 'bottom';
       else if (isShoes) targetSlot = 'shoes';
@@ -605,10 +606,12 @@ const App = {
     if(btn) btn.classList.add('active');
     
     let validCats = [];
-    if (group === 'Parte alta') validCats = ['parte alta', 'camisas/blusas', 'camisetas', 'sudaderas', 'chaquetas', 'vestidos/enterizos', 'tops', 'dresses', 'outerwear', 'camisa', 'playera', 'top'];
-    else if (group === 'Parte baja') validCats = ['parte baja', 'pantalones', 'shorts/faldas', 'bottoms', 'pantalon', 'pantalón', 'falda', 'short', 'jeans'];
+    if (group === 'Tops') validCats = ['camisas', 'blusa', 'camisetas', 'playera', 'sudadera', 'top'];
+    else if (group === 'Pantalones') validCats = ['pantalones', 'shorts/faldas', 'bottoms', 'pantalon', 'pantalón', 'falda', 'short', 'jeans'];
+    else if (group === 'Vestidos') validCats = ['vestidos', 'enterizos', 'vestido', 'enterizo', 'dress'];
+    else if (group === 'Abrigos') validCats = ['chaquetas', 'abrigos', 'chaqueta', 'abrigo', 'chamarra'];
     else if (group === 'Zapatos') validCats = ['zapatos', 'shoes', 'zapato', 'tenis', 'sneakers'];
-    else if (group === 'Cabeza') validCats = ['cabeza', 'accesorios', 'accessories', 'accesorio', 'reloj', 'lentes', 'gorra', 'sombrero'];
+    else if (group === 'Accesorios') validCats = ['accesorios', 'accessories', 'accesorio', 'reloj', 'lentes', 'gorra', 'sombrero'];
 
     const filtered = s.clothingItems.filter(i => {
       const searchStr = ((i.category || '') + ' ' + (i.name || '')).toLowerCase();

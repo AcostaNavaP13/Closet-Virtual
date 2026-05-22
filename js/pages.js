@@ -89,16 +89,18 @@ ${['Look Casual Primaveral','Elegancia Minimalista','Street Style Urbano'].map((
 
 closetPage(){
 const s=Store.getState(),items=s.clothingItems;
-    const cats=['all','Parte alta','Parte baja','Cabeza','Zapatos'];
-    const catLabels={all:'Todos','Parte alta':'Parte alta','Parte baja':'Parte baja',Cabeza:'Cabeza',Zapatos:'Zapatos'};
-    const catIcons={all:'✨','Parte alta':'👕','Parte baja':'👖',Cabeza:'🧢',Zapatos:'👟'};
+    const cats=['all','Tops','Pantalones','Vestidos','Abrigos','Zapatos','Accesorios'];
+    const catLabels={all:'Todos',Tops:'Tops',Pantalones:'Pantalones',Vestidos:'Vestidos',Abrigos:'Abrigos',Zapatos:'Zapatos',Accesorios:'Accesorios'};
+    const catIcons={all:'✨',Tops:'👕',Pantalones:'👖',Vestidos:'👗',Abrigos:'🧥',Zapatos:'👟',Accesorios:'💍'};
     const filter=s.filters.category||'all';
     const filtered=filter==='all'?items:items.filter(i=>{
       const searchStr = ((i.category || '') + ' ' + (i.name || '')).toLowerCase();
-      if(filter==='Parte alta') return ['parte alta','camisas','blusa','camisetas','playera','sudadera','chaqueta','vestido','top'].some(v=>searchStr.includes(v));
-      if(filter==='Parte baja') return ['parte baja','pantalon','pantalón','pantalones','falda','short','jeans','bottoms'].some(v=>searchStr.includes(v));
-      if(filter==='Cabeza') return ['cabeza','sombrero','gorra','gorro','accesorio','lentes'].some(v=>searchStr.includes(v));
+      if(filter==='Tops') return ['camisas','blusa','camisetas','playera','sudadera','top'].some(v=>searchStr.includes(v));
+      if(filter==='Pantalones') return ['pantalon','pantalón','pantalones','falda','short','jeans','bottoms'].some(v=>searchStr.includes(v));
+      if(filter==='Vestidos') return ['vestido','enterizo','dress'].some(v=>searchStr.includes(v));
+      if(filter==='Abrigos') return ['abrigo','chaqueta','chamarra','sudadera'].some(v=>searchStr.includes(v));
       if(filter==='Zapatos') return ['zapatos','zapato','tenis','sneakers','shoes'].some(v=>searchStr.includes(v));
+      if(filter==='Accesorios') return ['accesorio','reloj','lentes','sombrero','gorra','gorro'].some(v=>searchStr.includes(v));
       return searchStr.includes(filter.toLowerCase());
     });
     return`
@@ -129,12 +131,12 @@ ${Components.renderHeader()}${Components.renderSidebar()}${Components.renderMobi
 <div class="builder-sidebar">
 <h3 style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--space-3);color:var(--color-text-secondary)">Selecciona Prendas</h3>
 <div class="category-nav" style="margin-bottom:var(--space-3)">
-${['Parte alta','Parte baja','Cabeza','Zapatos'].map((c,i)=>`<button class="category-pill ${i===0?'active':''}" onclick="App.filterBuilder('${c}',this)">${{'Parte alta':'👕','Parte baja':'👖',Cabeza:'🧢',Zapatos:'👟'}[c]} ${c}</button>`).join('')}
+${['Tops','Pantalones','Vestidos','Abrigos','Zapatos','Accesorios'].map((c,i)=>`<button class="category-pill ${i===0?'active':''}" onclick="App.filterBuilder('${c}',this)">${{Tops:'👕',Pantalones:'👖',Vestidos:'👗',Abrigos:'🧥',Zapatos:'👟',Accesorios:'💍'}[c]} ${c}</button>`).join('')}
 </div>
 <div class="builder-item-list" id="builder-items">
 ${items.filter(i=>{
   const searchStr = ((i.category || '') + ' ' + (i.name || '')).toLowerCase();
-  return ['parte alta','camisas','blusa','camisetas','playera','sudadera','chaqueta','vestido','top'].some(v=>searchStr.includes(v));
+  return ['camisas','blusa','camisetas','playera','sudadera','top'].some(v=>searchStr.includes(v));
 }).map(i=>`<div class="builder-item" draggable="true" data-id="${i.id}" onclick="App.selectBuilderItem('${i.id}')"><div style="width:100%;height:100%;background:${i.color};display:flex;align-items:center;justify-content:center;font-size:2rem;overflow:hidden;border-radius:12px;">${i.imageUrl ? `<img src="${i.imageUrl}" style="width:100%;height:100%;object-fit:cover;">` : i.icon}</div></div>`).join('')}
 </div></div>
 <div class="builder-canvas">
@@ -242,7 +244,7 @@ ${Components.renderHeader()}${Components.renderSidebar()}${Components.renderMobi
 <div class="section-header"><h2 class="section-title">Categorización</h2><p class="section-subtitle">Clasifica tu prenda para organizarla mejor</p></div>
 <div class="tagging-form">
 <div class="form-group"><label class="form-label">Nombre</label><input class="form-input" id="upload-name" placeholder="Ej: Camiseta Blanca"></div>
-<div class="form-group"><label class="form-label">Categoría</label><select class="form-input" id="upload-category"><option value="">Seleccionar...</option><option value="Parte alta">Parte alta</option><option value="Parte baja">Parte baja</option><option value="Cabeza">Cabeza</option><option value="Zapatos">Zapatos</option></select></div>
+<div class="form-group"><label class="form-label">Categoría</label><select class="form-input" id="upload-category"><option value="">Seleccionar...</option><option value="Camisas/Blusas">Camisas / Blusas</option><option value="Camisetas">Camisetas / Playeras</option><option value="Sudaderas">Sudaderas / Suéteres</option><option value="Pantalones">Pantalones / Jeans</option><option value="Shorts/Faldas">Shorts / Faldas</option><option value="Vestidos/Enterizos">Vestidos / Enterizos</option><option value="Chaquetas">Chaquetas / Abrigos</option><option value="Zapatos">Zapatos / Tenis</option><option value="Accesorios">Accesorios</option></select></div>
 <div class="form-group"><label class="form-label">Temporada</label><select class="form-input" id="upload-season"><option value="Todas">Todas</option><option value="Primavera">Primavera</option><option value="Verano">Verano</option><option value="Otoño">Otoño</option><option value="Invierno">Invierno</option></select></div>
 <div class="form-group"><label class="form-label">Ocasión</label><select class="form-input" id="upload-occasion"><option value="Casual">Casual</option><option value="Formal">Formal</option><option value="Trabajo">Trabajo</option><option value="Fiesta">Fiesta</option><option value="Deporte">Deporte</option></select></div>
 <div class="form-group"><label class="form-label">Marca (opcional)</label><input class="form-input" id="upload-brand" placeholder="Ej: Zara, H&M..."></div>
