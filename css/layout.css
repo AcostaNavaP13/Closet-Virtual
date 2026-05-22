@@ -33,7 +33,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--space-6);
-  background: rgba(10, 10, 15, 0.8);
+  background: var(--color-bg-glass);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--color-border-subtle);
@@ -42,7 +42,7 @@
 }
 
 .header.scrolled {
-  background: rgba(10, 10, 15, 0.95);
+  background: var(--color-bg-elevated);
   box-shadow: var(--shadow-md);
 }
 
@@ -303,7 +303,7 @@
   left: 0;
   right: 0;
   height: var(--mobile-nav-height);
-  background: rgba(10, 10, 15, 0.95);
+  background: var(--color-bg-elevated);
   backdrop-filter: blur(20px);
   border-top: 1px solid var(--color-border-subtle);
   z-index: var(--z-sticky);

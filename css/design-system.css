@@ -4,7 +4,7 @@
    ============================================ */
 
 /* Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap');
 
 /* ── CSS Custom Properties (Design Tokens) ── */
 :root {
@@ -68,6 +68,8 @@
   --color-border-strong: rgba(255, 255, 255, 0.12);
   --color-border-accent: rgba(184, 134, 91, 0.4);
 
+  --gradient-card: var(--color-surface-1);
+
   --shadow-glow-primary: 0 0 30px rgba(184,134,91,0.2), 0 0 60px rgba(184,134,91,0.08);
 }
 
@@ -78,16 +80,16 @@
   --gradient-warm: linear-gradient(135deg, #C27A7E 0%, #D4A373 100%);
   --gradient-cool: linear-gradient(135deg, #E6E5DF 0%, #F0EFEA 100%);
   --gradient-dark: linear-gradient(180deg, #FAF9F7 0%, #F0EFEA 100%);
-  --gradient-card: linear-gradient(145deg, rgba(255, 255, 255, 1) 0%, rgba(249, 248, 246, 0.9) 100%);
+  --gradient-card: var(--color-surface-1);
   --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%);
   --gradient-mesh: radial-gradient(ellipse at 20% 50%, rgba(184,134,91,0.05) 0%, transparent 50%),
                    radial-gradient(ellipse at 80% 20%, rgba(212,163,115,0.05) 0%, transparent 50%),
                    radial-gradient(ellipse at 50% 80%, rgba(200,195,185,0.05) 0%, transparent 50%);
 
   /* — Typography — */
-  --font-display: 'Playfair Display', Georgia, serif;
-  --font-heading: 'Space Grotesk', system-ui, sans-serif;
-  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Lato', sans-serif;
+  --font-heading: 'Lato', sans-serif;
+  --font-body: 'Lato', sans-serif;
 
   --text-xs: clamp(0.6875rem, 0.65rem + 0.1vw, 0.75rem);
   --text-sm: clamp(0.8125rem, 0.78rem + 0.15vw, 0.875rem);

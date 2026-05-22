@@ -30,12 +30,14 @@ window.DB = {
     return fbAuth.signInWithEmailAndPassword(email, password);
   },
 
-  async registerEmail(name, email, password) {
+  async registerEmail(name, email, password, gender, faceUrl) {
     const cred = await fbAuth.createUserWithEmailAndPassword(email, password);
     await cred.user.updateProfile({ displayName: name });
     // Crear documento del usuario en Firestore
     await db.collection('usuarios').doc(cred.user.uid).set({
       name, email, uid: cred.user.uid,
+      gender: gender || 'Mujer',
+      faceUrl: faceUrl || null,
       createdAt: new Date().toISOString()
     });
     return cred;
@@ -47,6 +49,18 @@ window.DB = {
 
   async logout() {
     return fbAuth.signOut();
+  },
+
+  async getUserProfile() {
+    const user = fbAuth.currentUser;
+    if (!user) return null;
+    try {
+      const doc = await db.collection('usuarios').doc(user.uid).get();
+      return doc.exists ? doc.data() : null;
+    } catch (e) {
+      console.error("Error fetching user profile", e);
+      return null;
+    }
   },
 
   onAuthStateChanged(callback) {

@@ -16,8 +16,15 @@ const App = {
     // Escuchar cambio de sesión en Firebase Auth
     DB.onAuthStateChanged(async (firebaseUser) => {
       if (firebaseUser) {
+        const profile = await DB.getUserProfile();
         Store.setState({
-          user: { name: firebaseUser.displayName || firebaseUser.email, email: firebaseUser.email, uid: firebaseUser.uid },
+          user: { 
+            name: firebaseUser.displayName || firebaseUser.email, 
+            email: firebaseUser.email, 
+            uid: firebaseUser.uid,
+            gender: profile ? profile.gender : 'Mujer',
+            faceUrl: profile ? profile.faceUrl : null
+          },
           isAuthenticated: true
         });
         await this._loadUserData();
@@ -49,11 +56,11 @@ const App = {
     if (isDark) {
       document.documentElement.removeAttribute('data-theme');
       localStorage.setItem('theme', 'light');
-      document.getElementById('theme-icon').className = 'fas fa-moon';
+      document.getElementById('theme-icon').innerText = 'dark_mode';
     } else {
       document.documentElement.setAttribute('data-theme', 'dark');
       localStorage.setItem('theme', 'dark');
-      document.getElementById('theme-icon').className = 'fas fa-sun';
+      document.getElementById('theme-icon').innerText = 'light_mode';
     }
   },
 
@@ -148,7 +155,7 @@ const App = {
     if (!Security.validateEmail(email)) return Components.showToast('⚠️ Formato de email inválido', 'error');
 
     const btn = document.querySelector('#login-form button[type="submit"]');
-    if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Entrando...'; btn.disabled = true; }
+    if (btn) { btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 1s linear infinite; vertical-align:middle; margin-right:8px;">sync</span> Entrando...'; btn.disabled = true; }
 
     try {
       await DB.loginEmail(email, pass);
@@ -159,7 +166,7 @@ const App = {
       const left = Security.attemptsLeft(blockKey);
       const msg  = this._authError(e.code);
       Components.showToast(`Error: ${msg}${left > 0 ? ` (${left} intentos restantes)` : ' — cuenta bloqueada 15 min'}`, 'error');
-      if (btn) { btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Iniciar Sesión'; btn.disabled = false; }
+      if (btn) { btn.innerHTML = '<span class="material-symbols-outlined" style="vertical-align:middle; margin-right:8px;">login</span> Iniciar Sesión'; btn.disabled = false; }
     }
   },
 
@@ -187,22 +194,59 @@ const App = {
       return Components.showToast(`Contraseña débil: ${failed}`, 'error');
     }
 
+    const genderEl = document.getElementById('reg-gender');
+    const faceEl = document.getElementById('reg-face');
+    const gender = genderEl ? genderEl.value : 'Mujer';
+    let faceDataUrl = null;
+
+    if (faceEl && faceEl.files && faceEl.files[0]) {
+      try {
+        faceDataUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              const ctx = canvas.getContext('2d');
+              const MAX_SIZE = 200;
+              let width = img.width;
+              let height = img.height;
+              if (width > height) {
+                if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
+              } else {
+                if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
+              }
+              canvas.width = width; canvas.height = height;
+              ctx.drawImage(img, 0, 0, width, height);
+              resolve(canvas.toDataURL('image/jpeg', 0.8));
+            };
+            img.onerror = reject;
+            img.src = e.target.result;
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(faceEl.files[0]);
+        });
+      } catch (err) {
+        return Components.showToast('Error procesando la foto del rostro', 'error');
+      }
+    }
+
     const btn = document.querySelector('#register-form button[type="submit"]');
-    if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creando cuenta...'; btn.disabled = true; }
+    if (btn) { btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 1s linear infinite; vertical-align:middle; margin-right:8px;">sync</span> Creando cuenta...'; btn.disabled = true; }
 
     try {
-      await DB.registerEmail(name, email, pass);
+      await DB.registerEmail(name, email, pass, gender, faceDataUrl);
       Components.showToast('¡Cuenta creada exitosamente! 🎉', 'success');
     } catch (e) {
       Components.showToast('Error: ' + this._authError(e.code), 'error');
-      if (btn) { btn.innerHTML = '<i class="fas fa-user-plus"></i> Crear Cuenta'; btn.disabled = false; }
+      if (btn) { btn.innerHTML = '<span class="material-symbols-outlined" style="vertical-align:middle; margin-right:8px;">person_add</span> Crear Cuenta'; btn.disabled = false; }
     }
   },
 
   async socialLogin(provider) {
     const btn = document.getElementById('btn-' + provider.toLowerCase());
     if (btn) {
-      btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Conectando con ${provider}...`;
+      btn.innerHTML = `<span class="material-symbols-outlined" style="animation: spin 1s linear infinite; vertical-align:middle; margin-right:8px;">sync</span> Conectando con ${provider}...`;
       btn.style.pointerEvents = 'none';
     }
     try {
@@ -213,7 +257,7 @@ const App = {
       Components.showToast(`✅ Conectado con ${provider}`, 'success');
     } catch (e) {
       Components.showToast('Error: ' + this._authError(e.code), 'error');
-      if (btn) { btn.innerHTML = `<i class="fab fa-${provider.toLowerCase()}"></i> ${provider}`; btn.style.pointerEvents = ''; }
+      if (btn) { btn.innerHTML = `<span class="material-symbols-outlined" style="vertical-align:middle; margin-right:8px;">login</span> ${provider}`; btn.style.pointerEvents = ''; }
     }
   },
 
@@ -297,9 +341,9 @@ const App = {
           <span class="tag">${item.season}</span><span class="tag">${item.occasion}</span><span class="tag">${item.category}</span>
         </div>
         <div style="display:flex;gap:var(--space-2);margin-top:var(--space-6)">
-          <button class="btn btn-primary" style="flex:1" onclick="Router.navigate('builder');App.closeModal()"><i class="fas fa-magic"></i> Usar en Outfit</button>
-          <button class="btn btn-secondary" onclick="App.editItem('${item.id}')" title="Editar"><i class="fas fa-edit"></i></button>
-          <button class="btn btn-danger" onclick="App.deleteItem('${item.id}')" title="Eliminar"><i class="fas fa-trash"></i></button>
+          <button class="btn btn-primary" style="flex:1" onclick="Router.navigate('builder');App.closeModal()"><span class="material-symbols-outlined" style="margin-right:6px;vertical-align:middle;">auto_fix_high</span> Usar en Outfit</button>
+          <button class="btn btn-secondary" onclick="App.editItem('${item.id}')" title="Editar"><span class="material-symbols-outlined">edit</span></button>
+          <button class="btn btn-danger" onclick="App.deleteItem('${item.id}')" title="Eliminar"><span class="material-symbols-outlined">delete</span></button>
         </div>
       </div>`;
     backdrop.classList.add('active');
@@ -325,7 +369,7 @@ const App = {
             ${['Casual','Formal','Trabajo','Fiesta','Deporte'].map(o=>`<option ${item.occasion===o?'selected':''}>${o}</option>`).join('')}
           </select></div>
         <div style="display:flex;gap:var(--space-2);margin-top:var(--space-5)">
-          <button class="btn btn-primary" style="flex:1" onclick="App.saveEdit('${item.id}')"><i class="fas fa-save"></i> Guardar</button>
+          <button class="btn btn-primary" style="flex:1" onclick="App.saveEdit('${item.id}')"><span class="material-symbols-outlined" style="margin-right:6px;vertical-align:middle;">save</span> Guardar</button>
           <button class="btn btn-secondary" onclick="App.viewItem('${item.id}')">Cancelar</button>
         </div>
       </div>`;
@@ -363,15 +407,36 @@ const App = {
     Array.from(files).forEach((f, idx) => {
       const reader = new FileReader();
       reader.onload = e => {
-        this._uploadedDataUrl = e.target.result;
-        grid.innerHTML = `<div class="upload-preview-item" id="preview-${idx}">
-          <img src="${e.target.result}" alt="${f.name}">
-          <div class="upload-preview-remove" onclick="document.getElementById('preview-${idx}').remove();App._uploadedDataUrl=null">✕</div>
-        </div>`;
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          const MAX_SIZE = 600;
+          let width = img.width;
+          let height = img.height;
+          if (width > height) {
+            if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
+          } else {
+            if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
+          }
+          canvas.width = width; 
+          canvas.height = height;
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Guardar como WebP para preservar transparencia y comprimir tamaño (< 1MB)
+          this._uploadedDataUrl = canvas.toDataURL('image/webp', 0.8);
+          
+          grid.innerHTML = `<div class="upload-preview-item" id="preview-${idx}">
+            <img src="${this._uploadedDataUrl}" alt="${f.name}">
+            <div class="upload-preview-remove" onclick="document.getElementById('preview-${idx}').remove();App._uploadedDataUrl=null">✕</div>
+          </div>`;
+          Components.showToast(`Foto procesada correctamente`, 'success');
+        };
+        img.onerror = () => Components.showToast('Error leyendo la imagen', 'error');
+        img.src = e.target.result;
       };
       reader.readAsDataURL(f);
     });
-    Components.showToast(`Foto cargada correctamente`, 'success');
     document.querySelectorAll('.upload-step')[0]?.classList.add('completed');
     document.querySelectorAll('.upload-step')[1]?.classList.add('active');
   },
@@ -396,7 +461,7 @@ const App = {
     if (!category) return Components.showToast('⚠️ Selecciona una categoría', 'error');
 
     const btn = document.querySelector('.upload-save-btn');
-    if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...'; btn.disabled = true; }
+    if (btn) { btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 1s linear infinite; vertical-align:middle; margin-right:8px;">sync</span> Guardando...'; btn.disabled = true; }
 
     const catIcons = { Tops:'👕', Bottoms:'👖', Dresses:'👗', Outerwear:'🧥', Shoes:'👟', Accessories:'💍' };
     const colors   = ['#E8D5D0','#2C3E50','#F5E6CC','#8B4513','#1A1A2E','#D4A574','#4A6741','#C0392B','#ECF0F1','#9B59B6'];
@@ -428,7 +493,7 @@ const App = {
       setTimeout(() => Router.navigate('closet'), 1000);
     } catch (e) {
       Components.showToast('Error guardando: ' + e.message, 'error');
-      if (btn) { btn.innerHTML = '<i class="fas fa-check"></i> Guardar Prenda'; btn.disabled = false; }
+      if (btn) { btn.innerHTML = '<span class="material-symbols-outlined" style="vertical-align:middle; margin-right:8px;">check</span> Guardar Prenda'; btn.disabled = false; }
     }
   },
 
@@ -448,13 +513,11 @@ const App = {
     this._builderSlots[slotId] = item;
     const slot = document.getElementById('slot-' + slotId);
     if (slot) {
-      slot.innerHTML = `
-        ${item.imageUrl
-          ? `<img src="${item.imageUrl}" style="width:48px;height:48px;object-fit:cover;border-radius:8px">`
-          : `<div style="font-size:2rem">${item.icon}</div>`}
-        <div style="font-size:var(--text-xs);font-weight:500;color:var(--color-text-primary)">${item.name}</div>`;
-      slot.style.borderColor = 'var(--color-primary)';
-      slot.style.background  = 'rgba(124,58,237,0.1)';
+      slot.innerHTML = item.imageUrl
+        ? `<img src="${item.imageUrl}" style="width:100%;height:100%;object-fit:contain;pointer-events:none;filter:drop-shadow(0 10px 15px rgba(0,0,0,0.3));">`
+        : `<div style="font-size:4rem;text-shadow:0 10px 15px rgba(0,0,0,0.3)">${item.icon}</div>`;
+      slot.style.borderColor = 'transparent';
+      slot.style.background  = 'transparent';
     }
     this.updateBuilderSummary();
     Components.showToast(`${item.name} añadido`, 'success');
@@ -473,19 +536,37 @@ const App = {
           ${item.imageUrl ? `<img src="${item.imageUrl}" style="width:100%;height:100%;object-fit:cover">` : item.icon}
         </div>
         <div style="flex:1;min-width:0"><div style="font-size:var(--text-sm);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.name}</div></div>
-        <button class="btn btn-icon btn-ghost btn-sm" onclick="App.removeFromSlot('${slot}')"><i class="fas fa-times" style="font-size:0.7rem"></i></button>
+        <button class="btn btn-icon btn-ghost btn-sm" onclick="App.removeFromSlot('${slot}')"><span class="material-symbols-outlined" style="font-size:1rem">close</span></button>
       </div>`).join('');
+  },
+
+  filterBuilder(group, btn) {
+    const s = Store.getState();
+    document.querySelectorAll('.builder-sidebar .category-pill').forEach(b => b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    
+    let validCats = [];
+    if (group === 'Tops') validCats = ['Camisas/Blusas', 'Camisetas', 'Sudaderas', 'Chaquetas', 'Vestidos/Enterizos'];
+    else if (group === 'Bottoms') validCats = ['Pantalones', 'Shorts/Faldas'];
+    else if (group === 'Shoes') validCats = ['Zapatos'];
+    else if (group === 'Accessories') validCats = ['Accesorios'];
+
+    const filtered = s.clothingItems.filter(i => validCats.includes(i.category));
+    const container = document.getElementById('builder-items');
+    if (!container) return;
+    container.innerHTML = filtered.map(i => `<div class="builder-item" draggable="true" data-id="${i.id}" onclick="App.selectBuilderItem('${i.id}')"><div style="width:100%;height:100%;background:${i.color};display:flex;align-items:center;justify-content:center;font-size:2rem">${i.imageUrl ? `<img src="${i.imageUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:12px">` : i.icon}</div></div>`).join('');
   },
 
   removeFromSlot(slotId) {
     this._builderSlots[slotId] = null;
     const slot   = document.getElementById('slot-' + slotId);
-    const labels = { top: 'Top / Camiseta', bottom: 'Pantalón / Falda', shoes: 'Zapatos', acc: 'Accesorios' };
+    const labels = { top: 'Top', bottom: 'Pantalón', shoes: 'Zapatos', acc: 'Accesorios' };
     const icons  = { top: '👕', bottom: '👖', shoes: '👟', acc: '💍' };
     if (slot) {
-      slot.innerHTML = `<div style="font-size:1.5rem;margin-bottom:var(--space-1)">${icons[slotId]}</div><div style="font-size:var(--text-xs);color:var(--color-text-tertiary)">${labels[slotId]}</div>`;
-      slot.style.borderColor = 'var(--color-border-medium)';
-      slot.style.background  = 'transparent';
+      slot.innerHTML = `<div style="font-size:1.5rem;margin-bottom:var(--space-1);text-shadow:0 2px 4px rgba(0,0,0,0.5)">${icons[slotId]}</div>
+      ${slotId !== 'acc' ? `<div style="font-size:var(--text-xs);color:white;text-shadow:0 1px 2px rgba(0,0,0,0.8)">${labels[slotId]}</div>` : ''}`;
+      slot.style.borderColor = 'rgba(124,58,237,0.5)';
+      slot.style.background  = 'rgba(0,0,0,0.1)';
     }
     this.updateBuilderSummary();
   },
