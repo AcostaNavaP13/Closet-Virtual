@@ -41,6 +41,10 @@ window.DB = {
     return cred;
   },
 
+  async sendPasswordReset(email) {
+    return fbAuth.sendPasswordResetEmail(email);
+  },
+
   async logout() {
     return fbAuth.signOut();
   },

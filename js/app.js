@@ -217,6 +217,24 @@ const App = {
     }
   },
 
+  async forgotPassword() {
+    const emailInput = document.getElementById('login-email');
+    const email = prompt('Por favor, ingresa tu correo electrónico para restablecer tu contraseña:', emailInput ? emailInput.value : '');
+    
+    if (!email || !email.trim()) return;
+    
+    if (!Security.validateEmail(email)) {
+      return Components.showToast('⚠️ Formato de email inválido', 'error');
+    }
+
+    try {
+      await DB.sendPasswordReset(email.trim());
+      Components.showToast('📧 Te hemos enviado un enlace para restablecer tu contraseña. Revisa tu bandeja de entrada o spam.', 'success');
+    } catch (e) {
+      Components.showToast('Error: ' + this._authError(e.code), 'error');
+    }
+  },
+
   async logout() {
     await DB.logout();
     Components.showToast('Sesión cerrada', 'info');

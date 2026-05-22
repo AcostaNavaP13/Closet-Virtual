@@ -10,7 +10,13 @@ loginPage(){return`
 <div class="auth-card">
 <form class="auth-form" id="login-form" onsubmit="event.preventDefault();App.login()">
 <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="login-email" placeholder="tu@email.com" value="demo@closet.ai"></div>
-<div class="form-group"><label class="form-label">Contraseña</label><input class="form-input" type="password" id="login-pass" placeholder="••••••••" value="demo123"></div>
+<div class="form-group">
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <label class="form-label">Contraseña</label>
+    <a href="#" onclick="App.forgotPassword(); return false;" style="font-size:var(--text-xs); color:var(--color-primary); font-weight:600;">¿Olvidaste tu contraseña?</a>
+  </div>
+  <input class="form-input" type="password" id="login-pass" placeholder="••••••••" value="demo123">
+</div>
 <button type="submit" class="btn btn-primary btn-lg" style="width:100%"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</button>
 </form>
 
