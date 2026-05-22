@@ -508,20 +508,20 @@ const App = {
     // Auto-assign to correct slot based on category
     const item = Store.getState().clothingItems.find(i => i.id === id);
     if (item) {
-      const cat = (item.category || '').toLowerCase();
+      const searchStr = ((item.category || '') + ' ' + (item.name || '')).toLowerCase();
       let targetSlot = null;
       
-      const isTop = ['camisas', 'blusa', 'camisetas', 'playera', 'sudadera', 'chaqueta', 'vestido', 'top', 'outerwear'].some(v => cat.includes(v));
-      const isBottom = ['pantalon', 'pantalón', 'pantalones', 'falda', 'short', 'jeans', 'bottoms'].some(v => cat.includes(v));
-      const isShoes = ['zapatos', 'zapato', 'tenis', 'sneakers', 'shoes'].some(v => cat.includes(v));
-      const isAcc = ['accesorio', 'reloj', 'lentes', 'accessories'].some(v => cat.includes(v));
+      const isTop = ['camisas', 'blusa', 'camisetas', 'playera', 'sudadera', 'chaqueta', 'vestido', 'top', 'outerwear'].some(v => searchStr.includes(v));
+      const isBottom = ['pantalon', 'pantalón', 'pantalones', 'falda', 'short', 'jeans', 'bottoms'].some(v => searchStr.includes(v));
+      const isShoes = ['zapatos', 'zapato', 'tenis', 'sneakers', 'shoes'].some(v => searchStr.includes(v));
+      const isAcc = ['accesorio', 'reloj', 'lentes', 'accessories'].some(v => searchStr.includes(v));
 
       if (isTop) targetSlot = 'top';
       else if (isBottom) targetSlot = 'bottom';
       else if (isShoes) targetSlot = 'shoes';
       else if (isAcc) targetSlot = 'acc';
       // Fallbacks just in case
-      else if (cat === '') targetSlot = 'top';
+      else if (searchStr === '') targetSlot = 'top';
 
       if (targetSlot) {
         this.assignToSlot(targetSlot);
@@ -575,8 +575,8 @@ const App = {
     else if (group === 'Accessories') validCats = ['accesorios', 'accessories', 'accesorio', 'reloj', 'lentes'];
 
     const filtered = s.clothingItems.filter(i => {
-      const cat = (i.category || '').toLowerCase();
-      return validCats.some(v => cat.includes(v)) || validCats.includes(cat);
+      const searchStr = ((i.category || '') + ' ' + (i.name || '')).toLowerCase();
+      return validCats.some(v => searchStr.includes(v)) || validCats.includes(searchStr);
     });
     const container = document.getElementById('builder-items');
     if (!container) return;
