@@ -8,52 +8,81 @@
 
 /* ── CSS Custom Properties (Design Tokens) ── */
 :root {
-  /* — Primary Palette — */
-  --color-primary: #7C3AED;
-  --color-primary-light: #A78BFA;
-  --color-primary-dark: #5B21B6;
-  --color-primary-glow: rgba(124, 58, 237, 0.3);
+  /* — Primary Palette (Camel & Brown) — */
+  --color-primary: #8B5A2B;
+  --color-primary-light: #B8865B;
+  --color-primary-dark: #5C3A21;
+  --color-primary-glow: rgba(139, 90, 43, 0.15);
 
-  /* — Accent Colors — */
-  --color-accent-rose: #F43F5E;
-  --color-accent-amber: #F59E0B;
-  --color-accent-emerald: #10B981;
-  --color-accent-sky: #0EA5E9;
-  --color-accent-fuchsia: #D946EF;
+  /* — Accent Colors (Muted) — */
+  --color-accent-rose: #C27A7E;
+  --color-accent-amber: #D4A373;
+  --color-accent-emerald: #7C9885;
+  --color-accent-sky: #8397A7;
+  --color-accent-fuchsia: #A98495;
 
-  /* — Neutral Palette (Dark Mode First) — */
-  --color-bg-primary: #0A0A0F;
-  --color-bg-secondary: #12121A;
-  --color-bg-tertiary: #1A1A2E;
-  --color-bg-card: rgba(26, 26, 46, 0.6);
-  --color-bg-elevated: rgba(30, 30, 50, 0.8);
-  --color-bg-glass: rgba(255, 255, 255, 0.04);
+  /* — Neutral Palette (Light Minimalist) — */
+  --color-bg-primary: #FAF9F7;
+  --color-bg-secondary: #F0EFEA;
+  --color-bg-tertiary: #E6E5DF;
+  --color-bg-card: rgba(255, 255, 255, 0.9);
+  --color-bg-elevated: rgba(255, 255, 255, 1);
+  --color-bg-glass: rgba(255, 255, 255, 0.6);
 
-  --color-surface-1: #16162A;
-  --color-surface-2: #1E1E38;
-  --color-surface-3: #2A2A4A;
+  --color-surface-1: #FFFFFF;
+  --color-surface-2: #F9F8F6;
+  --color-surface-3: #F3F1ED;
 
-  --color-text-primary: #F1F0F5;
-  --color-text-secondary: #A0A0B8;
-  --color-text-tertiary: #6B6B82;
-  --color-text-accent: var(--color-primary-light);
+  --color-text-primary: #2C2621;
+  --color-text-secondary: #5C554D;
+  --color-text-tertiary: #8A837A;
+  --color-text-accent: var(--color-primary-dark);
 
   /* — Borders — */
-  --color-border-subtle: rgba(255, 255, 255, 0.06);
-  --color-border-medium: rgba(255, 255, 255, 0.1);
-  --color-border-strong: rgba(255, 255, 255, 0.15);
-  --color-border-accent: rgba(124, 58, 237, 0.4);
+  --color-border-subtle: rgba(0, 0, 0, 0.04);
+  --color-border-medium: rgba(0, 0, 0, 0.08);
+  --color-border-strong: rgba(0, 0, 0, 0.12);
+  --color-border-accent: rgba(139, 90, 43, 0.3);
+}
+
+/* ── Dark Theme Overrides ── */
+[data-theme="dark"] {
+  --color-bg-primary: #12100E;
+  --color-bg-secondary: #1C1917;
+  --color-bg-tertiary: #292524;
+  --color-bg-card: rgba(28, 25, 23, 0.8);
+  --color-bg-elevated: rgba(41, 37, 36, 1);
+  --color-bg-glass: rgba(0, 0, 0, 0.4);
+
+  --color-surface-1: #1A1715;
+  --color-surface-2: #24201E;
+  --color-surface-3: #322C29;
+
+  --color-text-primary: #F5F3F0;
+  --color-text-secondary: #A8A29E;
+  --color-text-tertiary: #78716C;
+  --color-text-accent: var(--color-primary-light);
+
+  --color-border-subtle: rgba(255, 255, 255, 0.04);
+  --color-border-medium: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.12);
+  --color-border-accent: rgba(184, 134, 91, 0.4);
+
+  --shadow-glow-primary: 0 0 30px rgba(184,134,91,0.2), 0 0 60px rgba(184,134,91,0.08);
+}
+
+:root {
 
   /* — Gradients — */
-  --gradient-primary: linear-gradient(135deg, #7C3AED 0%, #D946EF 100%);
-  --gradient-warm: linear-gradient(135deg, #F43F5E 0%, #F59E0B 100%);
-  --gradient-cool: linear-gradient(135deg, #0EA5E9 0%, #7C3AED 100%);
-  --gradient-dark: linear-gradient(180deg, #0A0A0F 0%, #12121A 100%);
-  --gradient-card: linear-gradient(145deg, rgba(30, 30, 50, 0.6) 0%, rgba(20, 20, 35, 0.9) 100%);
-  --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
-  --gradient-mesh: radial-gradient(ellipse at 20% 50%, rgba(124,58,237,0.15) 0%, transparent 50%),
-                   radial-gradient(ellipse at 80% 20%, rgba(217,70,239,0.1) 0%, transparent 50%),
-                   radial-gradient(ellipse at 50% 80%, rgba(14,165,233,0.08) 0%, transparent 50%);
+  --gradient-primary: linear-gradient(135deg, #8B5A2B 0%, #B8865B 100%);
+  --gradient-warm: linear-gradient(135deg, #C27A7E 0%, #D4A373 100%);
+  --gradient-cool: linear-gradient(135deg, #E6E5DF 0%, #F0EFEA 100%);
+  --gradient-dark: linear-gradient(180deg, #FAF9F7 0%, #F0EFEA 100%);
+  --gradient-card: linear-gradient(145deg, rgba(255, 255, 255, 1) 0%, rgba(249, 248, 246, 0.9) 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%);
+  --gradient-mesh: radial-gradient(ellipse at 20% 50%, rgba(184,134,91,0.05) 0%, transparent 50%),
+                   radial-gradient(ellipse at 80% 20%, rgba(212,163,115,0.05) 0%, transparent 50%),
+                   radial-gradient(ellipse at 50% 80%, rgba(200,195,185,0.05) 0%, transparent 50%);
 
   /* — Typography — */
   --font-display: 'Playfair Display', Georgia, serif;
@@ -103,15 +132,15 @@
   --radius-2xl: 1.5rem;
   --radius-full: 9999px;
 
-  /* — Shadows — */
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
-  --shadow-xl: 0 16px 48px rgba(0,0,0,0.5);
-  --shadow-glow-primary: 0 0 30px rgba(124,58,237,0.3), 0 0 60px rgba(124,58,237,0.1);
-  --shadow-glow-rose: 0 0 30px rgba(244,63,94,0.3);
-  --shadow-glow-amber: 0 0 30px rgba(245,158,11,0.3);
-  --shadow-inner: inset 0 2px 4px rgba(0,0,0,0.3);
+  /* — Shadows (Lighter for light theme) — */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.1);
+  --shadow-xl: 0 16px 48px rgba(0,0,0,0.12);
+  --shadow-glow-primary: 0 0 30px rgba(139,90,43,0.15), 0 0 60px rgba(139,90,43,0.05);
+  --shadow-glow-rose: 0 0 30px rgba(194,122,126,0.15);
+  --shadow-glow-amber: 0 0 30px rgba(212,163,115,0.15);
+  --shadow-inner: inset 0 2px 4px rgba(0,0,0,0.05);
 
   /* — Transitions — */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -280,8 +309,8 @@ ul, ol {
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(124,58,237,0.2); }
-  50% { box-shadow: 0 0 40px rgba(124,58,237,0.5); }
+  0%, 100% { box-shadow: 0 0 20px rgba(139,90,43,0.1); }
+  50% { box-shadow: 0 0 40px rgba(139,90,43,0.25); }
 }
 
 @keyframes float {

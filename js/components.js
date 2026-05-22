@@ -23,7 +23,7 @@ const Components = {
       <div class="header-left">
         <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
         <a href="#dashboard" class="header-brand" onclick="Router.navigate('dashboard')">
-          <div class="header-logo">👗</div>
+          <img src="img/logo.png" alt="AC Logo" style="width:32px; height:32px; object-fit:contain;">
           <div class="header-title"><span>Virtual Closet</span></div>
         </a>
       </div>
@@ -34,6 +34,12 @@ const Components = {
         </div>
       </div>
       <div class="header-right">
+        <button class="btn btn-icon btn-ghost" id="btn-theme-toggle" onclick="App.toggleTheme()" aria-label="Cambiar tema" style="color:var(--color-text-secondary)">
+          <i class="fas fa-moon" id="theme-icon"></i>
+        </button>
+        <button class="btn btn-icon btn-ghost" id="btn-lang-toggle" onclick="App.toggleLang()" aria-label="Cambiar idioma" style="color:var(--color-text-secondary); font-weight:bold; font-size:0.8rem">
+          EN
+        </button>
         <button class="btn btn-icon btn-ghost header-notification" id="btn-notifications" aria-label="Notificaciones">
           <i class="fas fa-bell"></i>
           <div class="header-notification-badge"></div>

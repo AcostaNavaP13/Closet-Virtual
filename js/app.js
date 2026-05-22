@@ -32,8 +32,69 @@ const App = {
       }
     });
 
+    // Restaurar tema y lenguaje
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    
+    // Inyectar el script de Google Translate para el cambio de idioma automático
+    this._injectTranslateWidget();
+
     Router.init();
     this.setupGlobalListeners();
+  },
+
+  // ── THEME & LANG TOGGLE ──
+  toggleTheme() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('theme', 'light');
+      document.getElementById('theme-icon').className = 'fas fa-moon';
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('theme', 'dark');
+      document.getElementById('theme-icon').className = 'fas fa-sun';
+    }
+  },
+
+  toggleLang() {
+    // Busca el combo oculto de Google Translate y simula el cambio
+    const combo = document.querySelector('.goog-te-combo');
+    const btn = document.getElementById('btn-lang-toggle');
+    if (!combo) return Components.showToast('El traductor aún está cargando...', 'info');
+
+    if (btn.innerText.trim() === 'EN') {
+      combo.value = 'en';
+      combo.dispatchEvent(new Event('change'));
+      btn.innerText = 'ES';
+    } else {
+      combo.value = 'es';
+      combo.dispatchEvent(new Event('change'));
+      btn.innerText = 'EN';
+    }
+  },
+
+  _injectTranslateWidget() {
+    const script = document.createElement('script');
+    script.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+    document.body.appendChild(script);
+
+    window.googleTranslateElementInit = function() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'es',
+        includedLanguages: 'en,es',
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+        autoDisplay: false
+      }, 'google_translate_element');
+    };
+
+    // Ocultar el widget de google (lo controlamos con nuestro propio botón)
+    const style = document.createElement('style');
+    style.innerHTML = `
+      .goog-te-banner-frame, #google_translate_element { display: none !important; }
+      body { top: 0 !important; }
+    `;
+    document.head.appendChild(style);
   },
 
   render(html) {

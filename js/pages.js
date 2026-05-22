@@ -3,7 +3,7 @@ loginPage(){return`
 <div class="auth-page">
 <div class="auth-container">
 <div class="auth-header">
-<div class="auth-logo">👗</div>
+<img src="img/logo.png" alt="AC Logo" style="width:80px; height:80px; object-fit:contain; margin:0 auto var(--space-4); display:block;">
 <h1 class="auth-title">Virtual Closet</h1>
 <p class="auth-subtitle">Tu armario digital inteligente</p>
 </div>
@@ -13,11 +13,7 @@ loginPage(){return`
 <div class="form-group"><label class="form-label">Contraseña</label><input class="form-input" type="password" id="login-pass" placeholder="••••••••" value="demo123"></div>
 <button type="submit" class="btn btn-primary btn-lg" style="width:100%"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</button>
 </form>
-<div class="divider-text" style="margin:var(--space-5) 0">o continuar con</div>
-<div class="auth-social">
-<button class="auth-social-btn" onclick="App.socialLogin('Google')" id="btn-google"><i class="fab fa-google"></i> Google</button>
-<button class="auth-social-btn" onclick="App.socialLogin('Apple')" id="btn-apple"><i class="fab fa-apple"></i> Apple</button>
-</div>
+
 </div>
 <p class="auth-footer">¿No tienes cuenta? <a href="#register" onclick="Router.navigate('register')">Regístrate gratis</a></p>
 </div>
@@ -27,7 +23,7 @@ registerPage(){return`
 <div class="auth-page">
 <div class="auth-container">
 <div class="auth-header">
-<div class="auth-logo">👗</div>
+<img src="img/logo.png" alt="AC Logo" style="width:80px; height:80px; object-fit:contain; margin:0 auto var(--space-4); display:block;">
 <h1 class="auth-title">Crear Cuenta</h1>
 <p class="auth-subtitle">Únete y organiza tu estilo personal</p>
 </div>
