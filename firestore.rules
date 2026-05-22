@@ -1,0 +1,68 @@
+// ================================================
+// FIRESTORE SECURITY RULES — Virtual Closet
+// Copia estas reglas en:
+// Firebase Console → Firestore → Reglas
+// ================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── REGLA GLOBAL: Bloquear TODO por defecto ──
+    // Si no hay una regla explícita que permita,
+    // el acceso está denegado.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ── USUARIOS: Solo el propio usuario puede ver sus datos ──
+    match /usuarios/{userId} {
+      // Solo el usuario autenticado puede leer/escribir su propio perfil
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+
+      // ── PRENDAS: Sub-colección del usuario ──
+      match /prendas/{itemId} {
+        allow read, write: if request.auth != null
+                           && request.auth.uid == userId
+                           // Validar que el documento no sea demasiado grande
+                           && request.resource.data.keys().size() <= 20;
+
+        // Validar campos al crear/actualizar
+        allow create: if request.auth.uid == userId
+                      && request.resource.data.name is string
+                      && request.resource.data.name.size() <= 80
+                      && request.resource.data.category in [
+                           'Tops','Bottoms','Dresses',
+                           'Outerwear','Shoes','Accessories'
+                         ];
+
+        allow update: if request.auth.uid == userId
+                      && request.resource.data.name is string
+                      && request.resource.data.name.size() <= 80;
+      }
+
+      // ── OUTFITS: Sub-colección del usuario ──
+      match /outfits/{outfitId} {
+        allow read, write: if request.auth != null
+                           && request.auth.uid == userId;
+
+        allow create: if request.auth.uid == userId
+                      && request.resource.data.name is string
+                      && request.resource.data.name.size() <= 80
+                      && request.resource.data.items is list
+                      && request.resource.data.items.size() <= 10;
+      }
+
+      // ── COLECCIONES: Sub-colección del usuario ──
+      match /colecciones/{colId} {
+        allow read, write: if request.auth != null
+                           && request.auth.uid == userId;
+
+        allow create: if request.auth.uid == userId
+                      && request.resource.data.name is string
+                      && request.resource.data.name.size() <= 60;
+      }
+    }
+  }
+}
