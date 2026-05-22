@@ -89,23 +89,30 @@ ${['Look Casual Primaveral','Elegancia Minimalista','Street Style Urbano'].map((
 
 closetPage(){
 const s=Store.getState(),items=s.clothingItems;
-const cats=['all','Tops','Bottoms','Dresses','Outerwear','Shoes','Accessories'];
-const catLabels={all:'Todos',Tops:'Tops',Bottoms:'Pantalones',Dresses:'Vestidos',Outerwear:'Abrigos',Shoes:'Zapatos',Accessories:'Accesorios'};
-const catIcons={all:'✨',Tops:'👕',Bottoms:'👖',Dresses:'👗',Outerwear:'🧥',Shoes:'👟',Accessories:'💍'};
-const filter=s.filters.category||'all';
-const filtered=filter==='all'?items:items.filter(i=>i.category===filter);
-return`
-${Components.renderHeader()}${Components.renderSidebar()}${Components.renderMobileNav()}
-<main class="app-main has-sidebar"><div class="page-content">
-<div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-4)">
-<div><h1 class="page-title">Mi <span class="page-title-gradient">Armario</span></h1>
-<p class="page-description">${items.length} prendas en tu colección</p></div>
-<div style="display:flex;gap:var(--space-2)">
-<button class="btn btn-secondary" onclick="App.deleteAllItems()"><span class="material-symbols-outlined" style="margin-right:6px;vertical-align:middle;">delete</span> Vaciar</button>
-<button class="btn btn-primary" onclick="Router.navigate('upload')"><span class="material-symbols-outlined" style="margin-right:6px;vertical-align:middle;">add</span> Añadir Prenda</button>
-</div></div>
-<div class="category-nav" style="margin-bottom:var(--space-6)">
-${cats.map(c=>`<button class="category-pill ${filter===c?'active':''}" onclick="Store.setState({filters:{...Store.getState().filters,category:'${c}'}});Router.navigate('closet')">${catIcons[c]} ${catLabels[c]}</button>`).join('')}
+    const cats=['all','Parte alta','Parte baja','Cabeza','Zapatos'];
+    const catLabels={all:'Todos','Parte alta':'Parte alta','Parte baja':'Parte baja',Cabeza:'Cabeza',Zapatos:'Zapatos'};
+    const catIcons={all:'✨','Parte alta':'👕','Parte baja':'👖',Cabeza:'🧢',Zapatos:'👟'};
+    const filter=s.filters.category||'all';
+    const filtered=filter==='all'?items:items.filter(i=>{
+      const searchStr = ((i.category || '') + ' ' + (i.name || '')).toLowerCase();
+      if(filter==='Parte alta') return ['parte alta','camisas','blusa','camisetas','playera','sudadera','chaqueta','vestido','top'].some(v=>searchStr.includes(v));
+      if(filter==='Parte baja') return ['parte baja','pantalon','pantalón','pantalones','falda','short','jeans','bottoms'].some(v=>searchStr.includes(v));
+      if(filter==='Cabeza') return ['cabeza','sombrero','gorra','gorro','accesorio','lentes'].some(v=>searchStr.includes(v));
+      if(filter==='Zapatos') return ['zapatos','zapato','tenis','sneakers','shoes'].some(v=>searchStr.includes(v));
+      return searchStr.includes(filter.toLowerCase());
+    });
+    return`
+    ${Components.renderHeader()}${Components.renderSidebar()}${Components.renderMobileNav()}
+    <main class="app-main has-sidebar"><div class="page-content">
+    <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-4)">
+    <div><h1 class="page-title">Mi <span class="page-title-gradient">Armario</span></h1>
+    <p class="page-description">${items.length} prendas en tu colección</p></div>
+    <div style="display:flex;gap:var(--space-2)">
+    <button class="btn btn-secondary" onclick="App.deleteAllItems()"><span class="material-symbols-outlined" style="margin-right:6px;vertical-align:middle;">delete</span> Vaciar</button>
+    <button class="btn btn-primary" onclick="Router.navigate('upload')"><span class="material-symbols-outlined" style="margin-right:6px;vertical-align:middle;">add</span> Añadir Prenda</button>
+    </div></div>
+    <div class="category-nav" style="margin-bottom:var(--space-6)">
+    ${cats.map(c=>`<button class="category-pill ${filter===c?'active':''}" onclick="Store.setState({filters:{...Store.getState().filters,category:'${c}'}});Router.navigate('closet')">${catIcons[c]} ${catLabels[c]}</button>`).join('')}
 </div>
 <div class="clothing-grid">${filtered.length?filtered.map(i=>Components.renderClothingCard(i)).join(''):'<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">👗</div><div class="empty-state-title">Tu armario está vacío</div><p class="empty-state-text">Sube tu primera prenda para empezar</p><button class="btn btn-primary" style="margin-top:var(--space-4)" onclick="Router.navigate(\'upload\')"><span class="material-symbols-outlined" style="margin-right:6px;vertical-align:middle;">add</span> Subir Prenda</button></div>'}</div>
 </div></main>`},
@@ -122,10 +129,13 @@ ${Components.renderHeader()}${Components.renderSidebar()}${Components.renderMobi
 <div class="builder-sidebar">
 <h3 style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--space-3);color:var(--color-text-secondary)">Selecciona Prendas</h3>
 <div class="category-nav" style="margin-bottom:var(--space-3)">
-${['Tops','Bottoms','Shoes','Accessories'].map((c,i)=>`<button class="category-pill ${i===0?'active':''}" onclick="App.filterBuilder('${c}',this)">${{Tops:'👕',Bottoms:'👖',Shoes:'👟',Accessories:'💍'}[c]} ${c}</button>`).join('')}
+${['Parte alta','Parte baja','Cabeza','Zapatos'].map((c,i)=>`<button class="category-pill ${i===0?'active':''}" onclick="App.filterBuilder('${c}',this)">${{'Parte alta':'👕','Parte baja':'👖',Cabeza:'🧢',Zapatos:'👟'}[c]} ${c}</button>`).join('')}
 </div>
 <div class="builder-item-list" id="builder-items">
-${items.filter(i=>['Camisas/Blusas', 'Camisetas', 'Sudaderas', 'Chaquetas', 'Vestidos/Enterizos'].includes(i.category)).map(i=>`<div class="builder-item" draggable="true" data-id="${i.id}" onclick="App.selectBuilderItem('${i.id}')"><div style="width:100%;height:100%;background:${i.color};display:flex;align-items:center;justify-content:center;font-size:2rem">${i.imageUrl ? `<img src="${i.imageUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:12px">` : i.icon}</div></div>`).join('')}
+${items.filter(i=>{
+  const searchStr = ((i.category || '') + ' ' + (i.name || '')).toLowerCase();
+  return ['parte alta','camisas','blusa','camisetas','playera','sudadera','chaqueta','vestido','top'].some(v=>searchStr.includes(v));
+}).map(i=>`<div class="builder-item" draggable="true" data-id="${i.id}" onclick="App.selectBuilderItem('${i.id}')"><div style="width:100%;height:100%;background:${i.color};display:flex;align-items:center;justify-content:center;font-size:2rem;overflow:hidden;border-radius:12px;">${i.imageUrl ? `<img src="${i.imageUrl}" style="width:100%;height:100%;object-fit:cover;">` : i.icon}</div></div>`).join('')}
 </div></div>
 <div class="builder-canvas">
 <div style="position:relative; width:100%; max-width:380px; aspect-ratio:2/3; margin:0 auto; background:var(--color-surface-2); border-radius:var(--radius-xl); overflow:hidden; box-shadow:var(--shadow-xl);">
@@ -192,13 +202,18 @@ ${c.outfitIds.length<3?`<div style="background:var(--color-surface-1);display:fl
 </div>
 <div style="margin-top:var(--space-10)">
 <div class="section-header"><h2 class="section-title">Outfits Favoritos</h2></div>
-<div class="clothing-grid">${outfits.filter(o=>o.favorite).map(o=>{
+<div class="clothing-grid">${outfits.map(o=>{
 const oi=o.items.map(id=>items.find(x=>x.id===id)).filter(Boolean);
-return`<div class="outfit-card" style="position:relative">
-<div class="outfit-card-grid">${oi.slice(0,4).map(it=>`<div style="display:flex;align-items:center;justify-content:center;background:${it.color};font-size:1.8rem">${it.icon}</div>`).join('')}</div>
+return`<div class="outfit-card" style="position:relative;overflow:hidden">
+<div class="outfit-card-grid" style="height:250px;background:var(--color-surface-2);display:flex;align-items:center;justify-content:center;overflow:hidden">
+  ${o.snapshotUrl ? `<img src="${o.snapshotUrl}" style="width:100%;height:100%;object-fit:cover;">` : oi.slice(0,4).map(it=>`<div style="display:flex;align-items:center;justify-content:center;background:${it.color};font-size:1.8rem;flex:1;height:100%">${it.icon}</div>`).join('')}
+</div>
 <div style="padding:var(--space-3) var(--space-4);display:flex;align-items:center;justify-content:space-between">
 <div><div style="font-weight:600;font-size:var(--text-sm)">${o.name}</div><div style="font-size:var(--text-xs);color:var(--color-text-tertiary)">${o.occasion} · ${o.season}</div></div>
-<button class="btn btn-icon btn-ghost btn-sm" onclick="App.deleteOutfit('${o.id}')" title="Eliminar outfit"><span class="material-symbols-outlined" style="color:var(--color-accent-rose);font-size:1.2rem">delete</span></button>
+<div style="display:flex;gap:4px">
+  <button class="btn btn-icon btn-ghost btn-sm" onclick="App.editOutfit('${o.id}')" title="Editar outfit"><span class="material-symbols-outlined" style="color:var(--color-text-primary);font-size:1.2rem">edit</span></button>
+  <button class="btn btn-icon btn-ghost btn-sm" onclick="App.deleteOutfit('${o.id}')" title="Eliminar outfit"><span class="material-symbols-outlined" style="color:var(--color-accent-rose);font-size:1.2rem">delete</span></button>
+</div>
 </div></div>`}).join('')}</div>
 </div></div></main>`},
 
@@ -220,14 +235,14 @@ ${Components.renderHeader()}${Components.renderSidebar()}${Components.renderMobi
 <input type="file" id="file-input" accept="image/*" multiple style="display:none" onchange="App.handleUpload(this)">
 <div class="upload-zone-icon">📸</div>
 <div class="upload-zone-text">Arrastra tus fotos aquí o haz clic para seleccionar</div>
-<div class="upload-zone-hint">PNG, JPG hasta 10MB</div>
+<div class="upload-zone-hint">PNG sin fondo (transparente) recomendado para Probador 3D.<br>Límite: 10MB</div>
 </div>
 <div class="upload-preview-grid" id="upload-previews"></div>
 <div style="margin-top:var(--space-8)">
 <div class="section-header"><h2 class="section-title">Categorización</h2><p class="section-subtitle">Clasifica tu prenda para organizarla mejor</p></div>
 <div class="tagging-form">
 <div class="form-group"><label class="form-label">Nombre</label><input class="form-input" id="upload-name" placeholder="Ej: Camiseta Blanca"></div>
-<div class="form-group"><label class="form-label">Categoría</label><select class="form-input" id="upload-category"><option value="">Seleccionar...</option><option value="Camisas/Blusas">Camisas / Blusas</option><option value="Camisetas">Camisetas / Playeras</option><option value="Sudaderas">Sudaderas / Suéteres</option><option value="Pantalones">Pantalones / Jeans</option><option value="Shorts/Faldas">Shorts / Faldas</option><option value="Vestidos/Enterizos">Vestidos / Enterizos</option><option value="Chaquetas">Chaquetas / Abrigos</option><option value="Zapatos">Zapatos / Tenis</option><option value="Accesorios">Accesorios</option></select></div>
+<div class="form-group"><label class="form-label">Categoría</label><select class="form-input" id="upload-category"><option value="">Seleccionar...</option><option value="Parte alta">Parte alta</option><option value="Parte baja">Parte baja</option><option value="Cabeza">Cabeza</option><option value="Zapatos">Zapatos</option></select></div>
 <div class="form-group"><label class="form-label">Temporada</label><select class="form-input" id="upload-season"><option value="Todas">Todas</option><option value="Primavera">Primavera</option><option value="Verano">Verano</option><option value="Otoño">Otoño</option><option value="Invierno">Invierno</option></select></div>
 <div class="form-group"><label class="form-label">Ocasión</label><select class="form-input" id="upload-occasion"><option value="Casual">Casual</option><option value="Formal">Formal</option><option value="Trabajo">Trabajo</option><option value="Fiesta">Fiesta</option><option value="Deporte">Deporte</option></select></div>
 <div class="form-group"><label class="form-label">Marca (opcional)</label><input class="form-input" id="upload-brand" placeholder="Ej: Zara, H&M..."></div>

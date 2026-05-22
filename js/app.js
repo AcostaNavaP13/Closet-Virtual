@@ -1,6 +1,10 @@
 const App = {
+  APP_VERSION: '1.2.0', // Cambia este valor al subir una nueva actualización a GitHub
 
   init() {
+    this.checkVersion();
+    this.checkCookies();
+    
     Store.loadDemoData();
 
     // Registrar rutas
@@ -48,6 +52,38 @@ const App = {
 
     Router.init();
     this.setupGlobalListeners();
+  },
+
+  checkVersion() {
+    const savedVersion = localStorage.getItem('appVersion');
+    if (savedVersion && savedVersion !== this.APP_VERSION) {
+      localStorage.setItem('appVersion', this.APP_VERSION);
+      alert('¡Nueva versión disponible! La página se recargará para aplicar los últimos cambios.');
+      window.location.reload(true);
+    } else {
+      localStorage.setItem('appVersion', this.APP_VERSION);
+    }
+  },
+
+  checkCookies() {
+    if (!localStorage.getItem('cookiesAccepted')) {
+      const banner = document.createElement('div');
+      banner.id = 'cookie-banner';
+      banner.style.cssText = 'position:fixed;bottom:20px;left:20px;right:20px;background:var(--color-surface-2);padding:15px;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,0.2);z-index:9999;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:15px;border:1px solid var(--color-border-subtle);';
+      banner.innerHTML = `
+        <div style="flex:1;min-width:250px;font-size:0.9rem;color:var(--color-text-secondary);">
+          🍪 Utilizamos cookies (LocalStorage) para guardar tus preferencias de sesión y mejorar tu experiencia. No compartimos tus datos con terceros.
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="App.acceptCookies()">Aceptar</button>
+      `;
+      document.body.appendChild(banner);
+    }
+  },
+
+  acceptCookies() {
+    localStorage.setItem('cookiesAccepted', 'true');
+    const banner = document.getElementById('cookie-banner');
+    if (banner) banner.remove();
   },
 
   // ── THEME & LANG TOGGLE ──
@@ -511,10 +547,10 @@ const App = {
       const searchStr = ((item.category || '') + ' ' + (item.name || '')).toLowerCase();
       let targetSlot = null;
       
-      const isTop = ['camisas', 'blusa', 'camisetas', 'playera', 'sudadera', 'chaqueta', 'vestido', 'top', 'outerwear'].some(v => searchStr.includes(v));
-      const isBottom = ['pantalon', 'pantalón', 'pantalones', 'falda', 'short', 'jeans', 'bottoms'].some(v => searchStr.includes(v));
+      const isTop = ['parte alta', 'camisas', 'blusa', 'camisetas', 'playera', 'sudadera', 'chaqueta', 'vestido', 'top', 'outerwear'].some(v => searchStr.includes(v));
+      const isBottom = ['parte baja', 'pantalon', 'pantalón', 'pantalones', 'falda', 'short', 'jeans', 'bottoms'].some(v => searchStr.includes(v));
       const isShoes = ['zapatos', 'zapato', 'tenis', 'sneakers', 'shoes'].some(v => searchStr.includes(v));
-      const isAcc = ['accesorio', 'reloj', 'lentes', 'accessories'].some(v => searchStr.includes(v));
+      const isAcc = ['cabeza', 'accesorio', 'reloj', 'lentes', 'accessories', 'sombrero', 'gorra'].some(v => searchStr.includes(v));
 
       if (isTop) targetSlot = 'top';
       else if (isBottom) targetSlot = 'bottom';
@@ -537,8 +573,8 @@ const App = {
     const slot = document.getElementById('slot-' + slotId);
     if (slot) {
       slot.innerHTML = item.imageUrl
-        ? `<img src="${item.imageUrl}" style="width:100%;height:100%;object-fit:contain;pointer-events:none;filter:drop-shadow(0 10px 15px rgba(0,0,0,0.3));">`
-        : `<div style="font-size:4rem;text-shadow:0 10px 15px rgba(0,0,0,0.3)">${item.icon}</div>`;
+        ? `<img src="${item.imageUrl}" style="width:100%;height:100%;object-fit:contain;pointer-events:none;filter:drop-shadow(0 15px 25px rgba(0,0,0,0.4));">`
+        : `<div style="font-size:4rem;text-shadow:0 15px 25px rgba(0,0,0,0.4)">${item.icon}</div>`;
       slot.style.borderColor = 'transparent';
       slot.style.background  = 'transparent';
     }
@@ -569,10 +605,10 @@ const App = {
     if(btn) btn.classList.add('active');
     
     let validCats = [];
-    if (group === 'Tops') validCats = ['camisas/blusas', 'camisetas', 'sudaderas', 'chaquetas', 'vestidos/enterizos', 'tops', 'dresses', 'outerwear', 'camisa', 'playera', 'top'];
-    else if (group === 'Bottoms') validCats = ['pantalones', 'shorts/faldas', 'bottoms', 'pantalon', 'pantalón', 'falda', 'short', 'jeans'];
-    else if (group === 'Shoes') validCats = ['zapatos', 'shoes', 'zapato', 'tenis', 'sneakers'];
-    else if (group === 'Accessories') validCats = ['accesorios', 'accessories', 'accesorio', 'reloj', 'lentes'];
+    if (group === 'Parte alta') validCats = ['parte alta', 'camisas/blusas', 'camisetas', 'sudaderas', 'chaquetas', 'vestidos/enterizos', 'tops', 'dresses', 'outerwear', 'camisa', 'playera', 'top'];
+    else if (group === 'Parte baja') validCats = ['parte baja', 'pantalones', 'shorts/faldas', 'bottoms', 'pantalon', 'pantalón', 'falda', 'short', 'jeans'];
+    else if (group === 'Zapatos') validCats = ['zapatos', 'shoes', 'zapato', 'tenis', 'sneakers'];
+    else if (group === 'Cabeza') validCats = ['cabeza', 'accesorios', 'accessories', 'accesorio', 'reloj', 'lentes', 'gorra', 'sombrero'];
 
     const filtered = s.clothingItems.filter(i => {
       const searchStr = ((i.category || '') + ' ' + (i.name || '')).toLowerCase();
@@ -610,10 +646,25 @@ const App = {
     const outfitName = prompt('Nombre del outfit:', 'Mi Outfit');
     if (!outfitName) return;
 
+    Components.showToast('📸 Capturando outfit...', 'info');
+    
+    // Capture the builder-canvas
+    const canvasEl = document.querySelector('.builder-canvas > div');
+    let snapshotUrl = '';
+    if (canvasEl && window.html2canvas) {
+      try {
+        const canvas = await html2canvas(canvasEl, { useCORS: true, backgroundColor: null, scale: 2 });
+        snapshotUrl = canvas.toDataURL('image/jpeg', 0.8);
+      } catch (e) {
+        console.error('Error taking snapshot', e);
+      }
+    }
+
     const newOutfit = {
       id:       'outfit-' + Date.now(),
       name:     outfitName,
       items:    assigned.map(i => i.id),
+      snapshotUrl: snapshotUrl, // New field for the image
       occasion: 'Casual',
       season:   'Todas',
       favorite: false
@@ -633,6 +684,32 @@ const App = {
     Components.showToast('🗑️ Outfit eliminado', 'info');
     Router.render();
     await DB.deleteOutfit(id);
+  },
+
+  editOutfit(id) {
+    const outfit = Store.getState().outfits.find(o => o.id === id);
+    if (!outfit) return;
+    
+    // Clear current slots
+    ['top', 'bottom', 'shoes', 'acc'].forEach(s => {
+      this._builderSlots[s] = null;
+      const slot = document.getElementById('slot-' + s);
+      if(slot) {
+        slot.innerHTML = `<div style="font-size:1.5rem;margin-bottom:var(--space-1);text-shadow:0 2px 4px rgba(0,0,0,0.5)">...</div>`;
+        slot.style.borderColor = 'rgba(124,58,237,0.5)';
+        slot.style.background  = 'rgba(0,0,0,0.1)';
+      }
+    });
+
+    Router.navigate('builder');
+
+    // Simulate auto-assign for each item
+    setTimeout(() => {
+      outfit.items.forEach(itemId => {
+        this.selectBuilderItem(itemId);
+      });
+      Components.showToast('✏️ Outfit cargado para editar', 'info');
+    }, 500);
   },
 
   async deleteCollection(id) {
