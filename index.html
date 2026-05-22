@@ -66,12 +66,10 @@
       <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:1rem;color:var(--color-text-primary);">📝 Enviar Feedback</h2>
       <p style="color:var(--color-text-secondary);font-size:0.9rem;margin-bottom:1rem;">Ayúdanos a mejorar. Cuéntanos qué falló o qué te gustaría ver.</p>
       
-      <form action="https://formsubmit.co/acostanavap13@gmail.com" method="POST" enctype="multipart/form-data">
+      <form id="feedback-form" onsubmit="event.preventDefault(); App.submitFeedback(this);">
         <!-- Configuraciones de FormSubmit -->
         <input type="hidden" name="_subject" value="Nuevo Feedback - Virtual Closet!">
         <input type="hidden" name="_captcha" value="false">
-        <!-- Cambiar a tu URL real para regresar al inicio -->
-        <input type="hidden" name="_next" value="https://acostanavap13.github.io/">
 
         <div class="form-group" style="margin-bottom:1rem;">
           <label class="form-label">Tu Nombre</label>

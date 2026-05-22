@@ -504,6 +504,29 @@ const App = {
   selectBuilderItem(id) {
     this._selectedBuildItem = id;
     document.querySelectorAll('.builder-item').forEach(el => el.classList.toggle('selected', el.dataset.id === id));
+    
+    // Auto-assign to correct slot based on category
+    const item = Store.getState().clothingItems.find(i => i.id === id);
+    if (item) {
+      const cat = (item.category || '').toLowerCase();
+      let targetSlot = null;
+      
+      const isTop = ['camisas', 'blusa', 'camisetas', 'playera', 'sudadera', 'chaqueta', 'vestido', 'top', 'outerwear'].some(v => cat.includes(v));
+      const isBottom = ['pantalon', 'pantalón', 'pantalones', 'falda', 'short', 'jeans', 'bottoms'].some(v => cat.includes(v));
+      const isShoes = ['zapatos', 'zapato', 'tenis', 'sneakers', 'shoes'].some(v => cat.includes(v));
+      const isAcc = ['accesorio', 'reloj', 'lentes', 'accessories'].some(v => cat.includes(v));
+
+      if (isTop) targetSlot = 'top';
+      else if (isBottom) targetSlot = 'bottom';
+      else if (isShoes) targetSlot = 'shoes';
+      else if (isAcc) targetSlot = 'acc';
+      // Fallbacks just in case
+      else if (cat === '') targetSlot = 'top';
+
+      if (targetSlot) {
+        this.assignToSlot(targetSlot);
+      }
+    }
   },
 
   assignToSlot(slotId) {
@@ -546,15 +569,18 @@ const App = {
     if(btn) btn.classList.add('active');
     
     let validCats = [];
-    if (group === 'Tops') validCats = ['Camisas/Blusas', 'Camisetas', 'Sudaderas', 'Chaquetas', 'Vestidos/Enterizos'];
-    else if (group === 'Bottoms') validCats = ['Pantalones', 'Shorts/Faldas'];
-    else if (group === 'Shoes') validCats = ['Zapatos'];
-    else if (group === 'Accessories') validCats = ['Accesorios'];
+    if (group === 'Tops') validCats = ['camisas/blusas', 'camisetas', 'sudaderas', 'chaquetas', 'vestidos/enterizos', 'tops', 'dresses', 'outerwear', 'camisa', 'playera', 'top'];
+    else if (group === 'Bottoms') validCats = ['pantalones', 'shorts/faldas', 'bottoms', 'pantalon', 'pantalón', 'falda', 'short', 'jeans'];
+    else if (group === 'Shoes') validCats = ['zapatos', 'shoes', 'zapato', 'tenis', 'sneakers'];
+    else if (group === 'Accessories') validCats = ['accesorios', 'accessories', 'accesorio', 'reloj', 'lentes'];
 
-    const filtered = s.clothingItems.filter(i => validCats.includes(i.category));
+    const filtered = s.clothingItems.filter(i => {
+      const cat = (i.category || '').toLowerCase();
+      return validCats.some(v => cat.includes(v)) || validCats.includes(cat);
+    });
     const container = document.getElementById('builder-items');
     if (!container) return;
-    container.innerHTML = filtered.map(i => `<div class="builder-item" draggable="true" data-id="${i.id}" onclick="App.selectBuilderItem('${i.id}')"><div style="width:100%;height:100%;background:${i.color};display:flex;align-items:center;justify-content:center;font-size:2rem">${i.imageUrl ? `<img src="${i.imageUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:12px">` : i.icon}</div></div>`).join('');
+    container.innerHTML = filtered.map(i => `<div class="builder-item" draggable="true" data-id="${i.id}" onclick="App.selectBuilderItem('${i.id}')"><div style="width:100%;height:100%;background:${i.color};display:flex;align-items:center;justify-content:center;font-size:2rem;overflow:hidden;border-radius:12px;">${i.imageUrl ? `<img src="${i.imageUrl}" style="width:100%;height:100%;object-fit:cover;">` : i.icon}</div></div>`).join('');
   },
 
   removeFromSlot(slotId) {
@@ -686,6 +712,27 @@ const App = {
         ticking = true;
       }
     });
+  },
+
+  async submitFeedback(form) {
+    const btn = form.querySelector('button[type="submit"]');
+    btn.innerHTML = '<span class="material-symbols-outlined" style="animation:spin 1s linear infinite;margin-right:8px;vertical-align:middle;">sync</span> Enviando...';
+    btn.disabled = true;
+    const formData = new FormData(form);
+    try {
+      await fetch('https://formsubmit.co/ajax/acostanavap13@gmail.com', {
+        method: 'POST',
+        body: formData
+      });
+      document.getElementById('feedback-modal').classList.remove('active');
+      Components.showToast('✅ ¡Feedback enviado! Gracias por ayudarnos.', 'success');
+      form.reset();
+    } catch(e) {
+      Components.showToast('❌ Error al enviar el feedback', 'error');
+    } finally {
+      btn.innerHTML = '<span class="material-symbols-outlined" style="margin-right:8px;vertical-align:middle;">send</span> Enviar';
+      btn.disabled = false;
+    }
   }
 };
 
